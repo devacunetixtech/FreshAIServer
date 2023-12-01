@@ -4,6 +4,15 @@ const bcrypt = require("bcrypt");
 const validator = require("validator");
 const jwt = require("jsonwebtoken");
 const axios = require("axios");
+const cloudinary = require('cloudinary').v2;
+cloudinary.config({
+    cloud_name: 'di8lf7avq',
+    api_key: '525722338513788',
+    api_secret: '-7k8-J9jx4yLYE0VegSQPN74lB8',
+    secure: true
+  });
+
+// const imageProcessingLibrary = require('image-processing-library');
 
 const createToken = (_id) =>{
     const jwtkey = process.env.JWT_SECRET_KEY;
@@ -71,4 +80,65 @@ const findUser = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, loginUser, findUser };
+// const imgUpload = (req, res) => {
+//     // Upload image to Cloudinary
+//     const uploadStream = cloudinary.uploader.upload_stream({ folder: 'uploads' }, (error, result) => {
+//       if (error) {
+//         return res.status(500).json({ error: 'Error uploading image to Cloudinary' });
+//       }
+//       const cloudinaryUrl = result.url;
+//     //   imgProcess();
+//     //   res.json(result);
+//       res.json({ cloudinaryUrl });
+//       const requestData = {
+//         method: 'POST',
+//         headers: {
+//           'Content-Type': 'application/json',
+//         },
+//         body: JSON.stringify({
+//           data: cloudinaryUrl,
+//         }),
+//       };
+      
+//       axios.post('https://www.nyckel.com/v1/functions/7h6uvgo3auk8cjxy/invoke', requestData)
+//         .then(response => console.log(response.data))
+//         .catch(error => console.error('Error:', error));
+//     });
+  
+//     // Pipe the file buffer to the Cloudinary upload stream
+//     uploadStream.end(req.file.buffer);
+//   };
+
+const imgUpload = (req, res) => {
+    // Check if the request contains a file
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file provided' });
+    }
+  
+    const image = req.file;
+    
+    // Upload image to Cloudinary
+    const uploadStream = cloudinary.uploader.upload_stream({ folder: 'uploads' }, (error, result) => {
+      if (error) {
+        return res.status(500).json({ error: 'Error uploading image to Cloudinary' });
+      }
+      const cloudinaryUrl = result.url;
+  
+      // Cloudinary returns the uploaded image details
+      res.json({ cloudinaryUrl });
+  
+      // Call Nyckel API with JSON content type
+      axios.post('https://www.nyckel.com/v1/functions/7h6uvgo3auk8cjxy/invoke', { data: cloudinaryUrl }, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+        .then(response => console.log(response.data))
+        .catch(error => console.error('Error:', error));
+    });
+  
+    // Pipe the file buffer to the Cloudinary upload stream
+    uploadStream.end(image.buffer);
+  };
+  
+module.exports = { registerUser, loginUser, findUser, imgUpload };
