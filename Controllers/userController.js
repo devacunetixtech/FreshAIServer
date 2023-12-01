@@ -125,7 +125,7 @@ const imgUpload = (req, res) => {
       const cloudinaryUrl = result.url;
   
       // Cloudinary returns the uploaded image details
-      res.json({ cloudinaryUrl });
+    //   res.json({ cloudinaryUrl });
   
       // Call Nyckel API with JSON content type
       axios.post('https://www.nyckel.com/v1/functions/7h6uvgo3auk8cjxy/invoke', { data: cloudinaryUrl }, {
@@ -136,7 +136,7 @@ const imgUpload = (req, res) => {
         .then(response => {
             const labelName = response.data.labelName;
             console.log(labelName);
-            res.json({ labelName })
+            res.json({ cloudinaryUrl, labelName })
         })
         .catch(error => console.error('Error:', error));
     });
