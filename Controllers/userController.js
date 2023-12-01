@@ -133,7 +133,11 @@ const imgUpload = (req, res) => {
           'Content-Type': 'application/json',
         },
       })
-        .then(response => console.log(response.data))
+        .then(response => {
+            const labelName = response.data.labelName;
+            console.log(labelName);
+            res.json({ labelName })
+        })
         .catch(error => console.error('Error:', error));
     });
   
